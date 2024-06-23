@@ -76,3 +76,9 @@ fun Context.getFileSizeFromUri(uri: Uri): Long {
     fileDescriptor.close()
     return fileSize
 }
+
+fun Uri.toBitmap(context: Context): Bitmap? {
+    val contentResolver = context.contentResolver
+    val inputStream = contentResolver.openInputStream(this)
+    return BitmapFactory.decodeStream(inputStream)
+}

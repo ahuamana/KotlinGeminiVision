@@ -18,9 +18,14 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        buildConfigField("String", "API_KEY", "\"AIzaSyAcx-Q4o4FMKO-zkOyu58N46OR2OAK1BEs\"")
     }
 
     buildTypes {
+        debug {
+            buildConfigField("String", "API_KEY", "\"AIzaSyAcx-Q4o4FMKO-zkOyu58N46OR2OAK1BEs\"")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -48,6 +53,7 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
 }
 
 dependencies {
@@ -70,4 +76,6 @@ dependencies {
 
     implementation("io.coil-kt:coil-compose:2.2.2")
     testImplementation("org.robolectric:robolectric:4.6.1")
+
+    implementation("com.google.ai.client.generativeai:generativeai:0.6.0")
 }

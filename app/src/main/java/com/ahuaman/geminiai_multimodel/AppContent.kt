@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,9 +28,15 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
+import com.google.ai.client.generativeai.GenerativeModel
+import com.google.ai.client.generativeai.type.content
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.io.File
 import java.util.Objects
 
+@OptIn(DelicateCoroutinesApi::class)
 @Composable
 fun AppContent(modifier: Modifier = Modifier) {
 
@@ -76,7 +83,7 @@ fun AppContent(modifier: Modifier = Modifier) {
         if(capturedImageUri != Uri.EMPTY){
             Image(
                 modifier = Modifier
-                    .padding(16.dp, 8.dp),
+                    .padding(16.dp, 8.dp).size(200.dp),
                 painter = rememberAsyncImagePainter(capturedImageUri),
                 contentDescription = null
             )
@@ -105,10 +112,42 @@ fun AppContent(modifier: Modifier = Modifier) {
             if(newImageUri != Uri.EMPTY){
                 Image(
                     modifier = Modifier
-                        .padding(16.dp, 8.dp),
+                        .padding(16.dp, 8.dp).size(200.dp),
                     painter = rememberAsyncImagePainter(newImageUri),
                     contentDescription = null
                 )
+
+                Button(onClick = { val generativeModel = GenerativeModel(
+                    // The Gemini 1.5 models are versatile and work with both text-only and multimodal prompts
+                    modelName = "gemini-1.5-pro",
+                    // Access your API key as a Build Configuration variable (see "Set up your API key" above)
+                    apiKey = BuildConfig.API_KEY
+                )
+
+                    val inputContent = content {
+                        newImageUri.toBitmap(context)?.let {
+                            image(it)
+                        }
+                        text("his is organic or inoganic container, dont use the labels written on the item? The result give me on a JSON format. where include classification, type, percentage in the JSON -- \n" +
+                                "\n" +
+                                "{\n" +
+                                "\"classification\": \"\",\n" +
+                                "\"type\": \"\",\n" +
+                                "\"percentage\": \"\"\n" +
+                                "} \n -- IMPRINT IN ONE LINE\n" )
+                    }
+
+                    GlobalScope.launch {
+                        println("GEMINI AI - Generating content from image...")
+                        val response = generativeModel.generateContent(inputContent)
+                        val responseText = response.text?.replace("\n", "")?.replace("\r", "")
+                        println("GEMINI AI - $responseText")
+                    }
+
+                }) {
+                    Text(text = "Generate format from image using AI")
+
+                }
             }
 
         }
