@@ -1,7 +1,17 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
 }
+
+val localProperties = Properties().apply {
+    FileInputStream(rootProject.file("local.properties")).use { load(it) }
+}
+
+val apiKey: String? = localProperties.getProperty("API_KEY")
+
 
 android {
     namespace = "com.ahuaman.geminiai_multimodel"
@@ -18,13 +28,11 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
-
-        buildConfigField("String", "API_KEY", "\"AIzaSyAcx-Q4o4FMKO-zkOyu58N46OR2OAK1BEs\"")
     }
 
     buildTypes {
         debug {
-            buildConfigField("String", "API_KEY", "\"AIzaSyAcx-Q4o4FMKO-zkOyu58N46OR2OAK1BEs\"")
+            buildConfigField("String", "API_KEY", "\"$apiKey\"")
         }
         release {
             isMinifyEnabled = false
